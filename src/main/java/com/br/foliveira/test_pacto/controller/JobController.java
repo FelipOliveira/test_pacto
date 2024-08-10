@@ -21,13 +21,13 @@ import com.br.foliveira.test_pacto.repository.JobRepository;
 
 @CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials="true")
 @RestController
-@RequestMapping("/jobs")
+@RequestMapping("/api")
 public class JobController {
 
     @Autowired
     private JobRepository jobRepository;
 
-    @GetMapping("/")
+    @GetMapping("/jobs")
     ResponseEntity<List<Job>> getAllJobs(@RequestParam(required = false) String title) {
 	    List<Job> jobs = new ArrayList<>();
 		if(title == null){
@@ -41,7 +41,7 @@ public class JobController {
 			: new ResponseEntity<>(jobs, HttpStatus.OK);
 	}
     
-    @GetMapping("/{id}")
+    @GetMapping("/jobs/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	public ResponseEntity<Job> getJobById(@PathVariable("id") long id) {
 		return jobRepository.findById(id)
@@ -49,7 +49,7 @@ public class JobController {
 			.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 
-    @PostMapping("/")
+    @PostMapping("/jobs")
     @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Job> postJob(@RequestBody Job jobRequest) {	
 		try {
@@ -60,7 +60,7 @@ public class JobController {
 	    }
 	}
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/jobs/{id}")
     @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<HttpStatus> deleteJobById(@PathVariable("id") long id) {
 	    try {

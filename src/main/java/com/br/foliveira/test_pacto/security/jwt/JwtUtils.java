@@ -22,7 +22,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtils {
     
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private final String RESPONSE_COOKIE_PATH = "/";
+    private final String RESPONSE_COOKIE_PATH = "/api";
 
     @Value("${foliveira.app.jwtSecret}")
     private String jwtSecret;

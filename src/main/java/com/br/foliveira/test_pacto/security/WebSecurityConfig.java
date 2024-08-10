@@ -22,6 +22,7 @@ import com.br.foliveira.test_pacto.security.services.UserDetailsServiceImpl;
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
+    
     @Value("${spring.h2.console.path}")
     private String h2ConsolePath;
     
@@ -62,9 +63,9 @@ public class WebSecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
-            auth.requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/test/**").permitAll()
-                .requestMatchers("/jobs/**").permitAll()
+            auth.requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("/api/jobs/**").permitAll()
                 .requestMatchers("/h2-ui/**").permitAll()
                 .anyRequest().authenticated()
             );

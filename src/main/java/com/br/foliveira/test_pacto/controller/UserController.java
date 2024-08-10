@@ -23,7 +23,7 @@ import com.br.foliveira.test_pacto.repository.UserRepository;
 
 @CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials="true")
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
 public class UserController {
     
     @Autowired
@@ -32,7 +32,7 @@ public class UserController {
     @Autowired
     private JobRepository jobRepository;
 
-    @GetMapping("/")
+    @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = new ArrayList<>();
@@ -43,7 +43,7 @@ public class UserController {
 		: new ResponseEntity<>(users, HttpStatus.OK);
 	}
     
-    @GetMapping("/{userId}")
+    @GetMapping("users/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable("userId") long id) {
         return userRepository.findById(id)
@@ -51,7 +51,7 @@ public class UserController {
         .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     
-    @PostMapping("/{userId}/{jobId}")
+    @PostMapping("users/{userId}/{jobId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	public ResponseEntity<User> addJobToUser(@PathVariable(value = "userId") Long userId, 
         @PathVariable(value = "jobId") Long jobId) throws Exception {
@@ -69,7 +69,7 @@ public class UserController {
 		return new ResponseEntity<>(userData, HttpStatus.CREATED);
 	}
     
-    @DeleteMapping("/{userId}/{jobId}")
+    @DeleteMapping("users/{userId}/{jobId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<HttpStatus> removeJobFromUser(@PathVariable(value = "userId") Long userId,
         @PathVariable(value = "jobId") Long jobId) throws Exception {
@@ -81,7 +81,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> deleteUser(@PathVariable("userId") long id) {		
         try {
