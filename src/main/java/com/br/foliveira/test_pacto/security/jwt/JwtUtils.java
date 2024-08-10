@@ -20,7 +20,9 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtils {
+    
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private final String RESPONSE_COOKIE_PATH = "/";
 
     @Value("${foliveira.app.jwtSecret}")
     private String jwtSecret;
@@ -42,12 +44,12 @@ public class JwtUtils {
 
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path(RESPONSE_COOKIE_PATH).maxAge(24 * 60 * 60).httpOnly(true).build();
         return cookie;
     }
 
     public ResponseCookie getCleanJwtCookie() {
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null).path("/api").build();
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null).path(RESPONSE_COOKIE_PATH).build();
         return cookie;
     }
 

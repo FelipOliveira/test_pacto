@@ -36,8 +36,9 @@ import com.br.foliveira.test_pacto.security.services.UserDetailsImpl;
 
 @CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials="true")
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
+    
     @Autowired
     AuthenticationManager authenticationManager;
 

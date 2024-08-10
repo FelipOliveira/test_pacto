@@ -3,6 +3,8 @@ package com.br.foliveira.test_pacto.models;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,6 +47,7 @@ public class User {
 
     @NotBlank
     @Size(min = 6, max = 120)
+    @JsonIgnore
     private String password;
     
     @ManyToMany(fetch = FetchType.LAZY,
@@ -52,7 +55,7 @@ public class User {
         CascadeType.PERSIST,
         CascadeType.MERGE
     })
-    @JoinTable(name = "t_user_job",
+    @JoinTable(name = "users_jobs",
     joinColumns = { @JoinColumn(name = "user_id") },
     inverseJoinColumns = { @JoinColumn(name = "job_id") })
     private Set<Job> jobs = new HashSet<>();
