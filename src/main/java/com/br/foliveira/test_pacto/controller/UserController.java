@@ -3,6 +3,7 @@ package com.br.foliveira.test_pacto.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import com.br.foliveira.test_pacto.models.User;
 import com.br.foliveira.test_pacto.repository.JobRepository;
 import com.br.foliveira.test_pacto.repository.UserRepository;
 
+
 @CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials="true")
 @RestController
 @RequestMapping("/api")
@@ -34,26 +36,38 @@ public class UserController {
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = new ArrayList<>();
-		userRepository.findAll().forEach(users::add);
+    ResponseEntity<List<User>> getAllUsers() {
+        var usersData = new ArrayList<User>();
+		userRepository.findAll().forEach(usersData::add);
 		
-		return users.isEmpty() ? 
+		return usersData.isEmpty() ? 
 		new ResponseEntity<>(HttpStatus.NO_CONTENT)
-		: new ResponseEntity<>(users, HttpStatus.OK);
+		: new ResponseEntity<>(usersData, HttpStatus.OK);
 	}
     
     @GetMapping("users/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<User> getUserById(@PathVariable("userId") long id) {
+    ResponseEntity<User> getUserById(@PathVariable("userId") long id) {
         return userRepository.findById(id)
         .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
         .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @GetMapping("users/{userId}/jobs")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    ResponseEntity<List<Job>> getAvaliableJobs(@PathVariable(value = "userId") long userId) {
+        List<Job> jobsData = jobRepository.findAll();
+        Set<Job> jobsApplied = userRepository.findById(userId).get().getJobs();
+        return ResponseEntity.ok(
+            jobsData.stream()
+                .filter(job -> !jobsApplied.contains(job))
+                .collect(Collectors.toList())
+        );
+    }
     
     @PostMapping("users/{userId}/{jobId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	public ResponseEntity<User> addJobToUser(@PathVariable(value = "userId") Long userId, 
+	ResponseEntity<User> assignJob(@PathVariable(value = "userId") Long userId, 
         @PathVariable(value = "jobId") Long jobId) throws Exception {
 		User userData = userRepository.findById(userId).get();
         Job jobData = jobRepository.findById(jobId).get();
@@ -61,29 +75,18 @@ public class UserController {
 			Set<Job> jobs = userData.getJobs();
 			if (!jobs.contains(jobData)) {
 				user.addJob(jobData);
-				jobRepository.save(jobData);
-			}
+			} else {
+                user.removeJob(jobId);
+            }
+            jobRepository.save(jobData);
 			return userData;
 		}).orElseThrow(() -> new Exception());
-
 		return new ResponseEntity<>(userData, HttpStatus.CREATED);
 	}
-    
-    @DeleteMapping("users/{userId}/{jobId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<HttpStatus> removeJobFromUser(@PathVariable(value = "userId") Long userId,
-        @PathVariable(value = "jobId") Long jobId) throws Exception {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new Exception());
-        user.removeJob(jobId);
-        userRepository.save(user);
         
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-    
     @DeleteMapping("users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<Void> deleteUser(@PathVariable("userId") long id) {		
+	ResponseEntity<HttpStatus> deleteUser(@PathVariable("userId") long id) {		
         try {
 	        userRepository.deleteById(id);
 	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
