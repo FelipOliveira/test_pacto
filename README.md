@@ -30,6 +30,25 @@ A partir do Postman podem ser acessadas as urls para testar a aplicação. Os en
 
 - `POST /api/auth/signup` cadastra um novo usuário;
 
+Para cadastrar um usuário com credenciais de administrador, utilize como exemplo a seguinte estrutura no corpo da requisição.
+
+    {
+    	"username": "admin",
+    	"email": "admin@email.com",
+    	"password": "password",
+    	"role": ["admin","user"]
+    }
+
+Para cadastrar um usuário com credenciais de usuário, mais limitadas, utilize como exemplo a seguinte estrutura no corpo da requisição.
+
+    {
+    	"username": "user",
+    	"email": "user@email.com",
+    	"password": "password",
+    	"role": ["user"]
+    }
+
+
 ![signup.png](signup.png)
 
 - `POST /api/auth/signin` usa as credenciais cadastradas para entrar na aplicação;
