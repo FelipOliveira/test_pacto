@@ -53,7 +53,7 @@ public class UserController {
         .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("users/{userId}/jobs")
+    @GetMapping("users/{userId}/avaliablejobs")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     ResponseEntity<List<Job>> getAvaliableJobs(@PathVariable(value = "userId") long userId) {
         List<Job> jobsData = jobRepository.findAll();
@@ -62,6 +62,16 @@ public class UserController {
             jobsData.stream()
                 .filter(job -> !jobsApplied.contains(job))
                 .collect(Collectors.toList())
+        );
+    }
+    
+    @GetMapping("users/{userId}/myjobs")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    ResponseEntity<List<Job>> getAppliedJobs(@PathVariable(value = "userId") long userId) {       
+		Set<Job> jobsData = userRepository.findById(userId).get().getJobs();
+        return ResponseEntity.ok(
+        	userRepository.findById(userId).get().getJobs()
+        	.stream().collect(Collectors.toList())
         );
     }
     
@@ -75,13 +85,23 @@ public class UserController {
 			Set<Job> jobs = userData.getJobs();
 			if (!jobs.contains(jobData)) {
 				user.addJob(jobData);
-			} else {
-                user.removeJob(jobId);
-            }
-            jobRepository.save(jobData);
+				jobRepository.save(jobData);
+			}
 			return userData;
 		}).orElseThrow(() -> new Exception());
 		return new ResponseEntity<>(userData, HttpStatus.CREATED);
+	}
+	
+	@DeleteMapping("users/{userId}/{jobId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	ResponseEntity<User> dismissJob(@PathVariable(value = "userId") Long userId, 
+        @PathVariable(value = "jobId") Long jobId) throws Exception {
+		User user = userRepository.findById(userId)
+            .orElseThrow(() -> new Exception());
+        user.removeJob(jobId);
+        userRepository.save(user);
+        
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
         
     @DeleteMapping("users/{userId}")
