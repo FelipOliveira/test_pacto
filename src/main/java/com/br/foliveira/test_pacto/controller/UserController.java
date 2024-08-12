@@ -68,7 +68,6 @@ public class UserController {
     @GetMapping("users/{userId}/myjobs")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     ResponseEntity<List<Job>> getAppliedJobs(@PathVariable(value = "userId") long userId) {       
-		Set<Job> jobsData = userRepository.findById(userId).get().getJobs();
         return ResponseEntity.ok(
         	userRepository.findById(userId).get().getJobs()
         	.stream().collect(Collectors.toList())
